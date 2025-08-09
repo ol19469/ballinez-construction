@@ -37,17 +37,127 @@
     </section>
 
     <!-- Gallery Section (placeholder) -->
-    <section class="gallery">
-      <h3>Explore our stunning projects: A visual journey through Ballinez Construction's excellence and craftsmanship</h3>
-      <div class="gallery-grid">
-        <!-- Add project images here -->
-        <img src="/assets/project1_1.jpg" alt="Part 1" />
-        <img src="/assets/project1_2.jpg" alt="Part 2" />
-		 <img src="/assets/project1_4.jpg" alt="Part 3" />
-        <img src="/assets/project1_5.jpg" alt="Part 4" />
-        <img src="/assets/project1_6.jpg" alt="Part 5" />
-      </div>
-    </section>
+  <!-- Gallery Section (Carousel) -->
+<section class="carousel" id="gallery">
+  <h3>Our Work</h3>
+
+  <!-- Main viewer -->
+  <div class="carousel-main" aria-live="polite">
+    <button class="carousel-nav prev" aria-label="Previous image" type="button">‹</button>
+
+    <img
+      id="carousel-main-img"
+      src="/assets/project1_1.jpg"
+      alt="Flooring project — view 1"
+      decoding="async"
+      fetchpriority="high"
+    />
+
+    <button class="carousel-nav next" aria-label="Next image" type="button">›</button>
+
+    <div class="carousel-caption" id="carousel-caption">Flooring project — view 1</div>
+  </div>
+
+  <!-- Thumbs -->
+  <div class="carousel-thumbs" role="tablist" aria-label="Project gallery thumbnails">
+    <button role="tab" aria-selected="true" class="thumb is-active" data-index="0" type="button">
+      <img src="/assets/project1_1.jpg" alt="View 1" loading="lazy" />
+    </button>
+    <button role="tab" aria-selected="false" class="thumb" data-index="1" type="button">
+      <img src="/assets/project1_2.jpg" alt="View 2" loading="lazy" />
+    </button>
+    <button role="tab" aria-selected="false" class="thumb" data-index="2" type="button">
+      <img src="/assets/project1_4.jpg" alt="View 3" loading="lazy" />
+    </button>
+    <button role="tab" aria-selected="false" class="thumb" data-index="3" type="button">
+      <img src="/assets/project1_5.jpg" alt="View 4" loading="lazy" />
+    </button>
+    <button role="tab" aria-selected="false" class="thumb" data-index="4" type="button">
+      <img src="/assets/project1_6.jpg" alt="View 5" loading="lazy" />
+    </button>
+  </div>
+</section>
+
+<script>
+  const IMAGES = [
+    { src: "/assets/project1_1.jpg", alt: "Siding project — view 1" },
+    { src: "/assets/project1_2.jpg", alt: "Siding project — view 2" },
+    { src: "/assets/project1_4.jpg", alt: "Siding project — view 3" },
+    { src: "/assets/project1_5.jpg", alt: "Siding project — view 4" },
+    { src: "/assets/project1_6.jpg", alt: "Siding project — view 5" },
+  ];
+
+  const mainImg = document.getElementById("carousel-main-img");
+  const caption = document.getElementById("carousel-caption");
+  const thumbs = Array.from(document.querySelectorAll(".thumb"));
+  const prevBtn = document.querySelector(".carousel-nav.prev");
+  const nextBtn = document.querySelector(".carousel-nav.next");
+  const main = document.querySelector(".carousel-main");
+
+  let idx = 0;
+  let timer = null;
+  const ROTATE_MS = 5000;
+
+  function setImage(i, userInitiated = false) {
+    idx = (i + IMAGES.length) % IMAGES.length;
+    const { src, alt } = IMAGES[idx];
+
+    // Smooth swap
+    mainImg.style.opacity = 0;
+    requestAnimationFrame(() => {
+      mainImg.src = src;
+      mainImg.alt = alt;
+      caption.textContent = alt;
+      mainImg.onload = () => (mainImg.style.opacity = 1);
+    });
+
+    // Update thumb state
+    thumbs.forEach((t, n) => {
+      t.classList.toggle("is-active", n === idx);
+      t.setAttribute("aria-selected", String(n === idx));
+    });
+
+    // If the user interacted, reset the timer so it doesn’t instantly advance
+    if (userInitiated) restart();
+  }
+
+  function next() { setImage(idx + 1); }
+  function prev() { setImage(idx - 1); }
+
+  function start() {
+    if (timer) return;
+    timer = setInterval(next, ROTATE_MS);
+  }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+  function restart() { stop(); start(); }
+
+  // Events
+  nextBtn.addEventListener("click", () => setImage(idx + 1, true));
+  prevBtn.addEventListener("click", () => setImage(idx - 1, true));
+  thumbs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const i = Number(btn.dataset.index);
+      setImage(i, true);
+    });
+  });
+
+  // Pause on hover/focus, resume on leave/blur
+  ["mouseenter", "focusin"].forEach(ev => main.addEventListener(ev, stop));
+  ["mouseleave", "focusout"].forEach(ev => main.addEventListener(ev, start));
+
+  // Keyboard arrows
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { setImage(idx + 1, true); }
+    if (e.key === "ArrowLeft") { setImage(idx - 1, true); }
+  });
+
+  // Kick things off
+  setImage(0);
+  start();
+</script>
+
 
     <!-- Contact Section -->
     <section class="contact" id="contact">
